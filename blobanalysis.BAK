@@ -1,0 +1,82 @@
+;------------------------------------------------------
+;blobanalysis.pro
+;Written by Brian Primeau, 2010
+;This program allows manual blob analysis of a signle file.  It calls the blob analysis function and other
+;routines in the Coyote library, so that must be either compiled or in the working directory.
+;Use this for analysis of a single measurement, or for playing with how different settings change the analysis
+;without the need to operate from the GUI.
+;
+;------------------------------------------------------
+
+
+pro blobanalysis
+
+
+;Select File.  The dialog_pickfile option opens a popup to select the file.  The other option allows you to keep
+;a single filename saved all the time
+filename = dialog_pickfile()
+;filename = 'E:\data\October Runs\Data\1\AbsRemoved\text\text_00158.txt'
+
+data = readtext(filename)		; Reads in the text file.  'readtext' is a function that must be in the working path, or compiled
+;index = where(data gt data(0))  ; Removes data outside of 4Sight Mask.  Assumes pixel (0,0) is masked out
+index = where(data ge 1000)
+mask = data*0+1d
+mask(index) = 0
+data = data*mask
+data = congrid(data,500,500)	; Congrid sizes the data down to a 500 by 500 array, which is better for graphics.  Comment out to keep 1kX1k.
+shrunkmask = congrid(mask,500,500)
+data = bytscl(data)
+unsharp = UNSHARP_MASK(data, RADIUS = 10) - data	;This is the sharpening function.  The value of Radius can be changed by user as desired
+
+; Define a structuring kernal for an opening operation on the image.
+radius = 2
+kernel = SHIFT(DIST(2*radius+1), radius, radius) LE radius
+
+; Apply the opening operator to the image.
+openImage = MORPH_OPEN(unsharp, kernel, /GRAY)
+
+; Threshold the image to prepare to remove background noise.
+mask = openImage GE 150
+
+; Do the analysis.
+blobs = Obj_New('blob_analyzer', openImage, MASK=mask, SCALE=[1, 1])
+
+; Display the original image
+s = Size(data, /DIMENSIONS)
+Window, XSIZE=2*s[0], YSIZE=2*s[1], Title='Blob Analyzer Example'
+LoadCT, 0
+;TVImage, data, 0, /TVl
+TVImage, data, 0, /TV1
+
+; Display the opened image beside it.
+TVImage, unsharp, 1, /TV
+
+; Display the blobs we located with LABEL_REGION.
+count = blobs -> NumberOfBlobs()
+TVImage, bytscl(mask), 2, /TV
+
+; Display the original image, with blob outlined and labelled.
+TVImage, data, 3, /TV
+
+
+FOR j=0,count-1 DO BEGIN
+  stats = blobs -> GetStats(j, /NoScale)
+  PLOTS, stats.perimeter_pts[0,*] + s[0], stats.perimeter_pts[1,*], /Device, COLOR=FSC_Color('dodger blue')
+  XYOUTS, stats.center[0]+s[0], stats.center[1]-5, /Device, StrTrim(j,2), $
+      COLOR=FSC_Color('red'), ALIGNMENT=0.5, CHARSIZE=0.75
+ENDFOR
+
+
+; Add labels for captions.
+XYOUTS, 0.05, 0.95, 'Original Image', FONT=0, ALIGNMENT=0.5, COLOR=FSC_Color('Yellow')
+XYOUTS, 0.55, 0.95, 'Enhanced', FONT=0, ALIGNMENT=0.5, COLOR=FSC_Color('Yellow')
+XYOUTS, 0.05, 0.45, 'Blobs Only', FONT=0, ALIGNMENT=.5, COLOR=FSC_Color('Yellow')
+XYOUTS, 0.55, 0.45, 'Blob Overlay', FONT=0, ALIGNMENT=0.5, COLOR=FSC_Color('Yellow')
+
+; Report stats.
+blobs -> ReportStats
+
+; Destroy the object.
+Obj_Destroy, blobs
+
+END

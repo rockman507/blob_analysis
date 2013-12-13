@@ -1,0 +1,496 @@
+; 
+; IDL Widget Interface Procedures. This Code is automatically 
+;     generated and should not be modified.
+
+; 
+; Generated on:	08/14/2013 14:02.03
+; 
+pro WID_BASE_0_event, Event
+
+  wTarget = (widget_info(Event.id,/NAME) eq 'TREE' ?  $
+      widget_info(Event.id, /tree_root) : event.id)
+
+
+  wWidget =  Event.top
+
+  case wTarget of
+
+    Widget_Info(wWidget, FIND_BY_UNAME='WID_BUTTON_1'): begin
+      if( Tag_Names(Event, /STRUCTURE_NAME) eq 'WIDGET_BUTTON' )then $
+        OnShowOriginal, Event
+    end
+    Widget_Info(wWidget, FIND_BY_UNAME='WID_BUTTON_2'): begin
+      if( Tag_Names(Event, /STRUCTURE_NAME) eq 'WIDGET_BUTTON' )then $
+        OnShowOpenImage, Event
+    end
+    Widget_Info(wWidget, FIND_BY_UNAME='WID_BUTTON_3'): begin
+      if( Tag_Names(Event, /STRUCTURE_NAME) eq 'WIDGET_BUTTON' )then $
+        OnShowMask, Event
+    end
+    Widget_Info(wWidget, FIND_BY_UNAME='WID_BUTTON_5'): begin
+      if( Tag_Names(Event, /STRUCTURE_NAME) eq 'WIDGET_BUTTON' )then $
+        OnAnalyzePreview, Event
+    end
+    Widget_Info(wWidget, FIND_BY_UNAME='WID_BUTTON_6'): begin
+      if( Tag_Names(Event, /STRUCTURE_NAME) eq 'WIDGET_BUTTON' )then $
+        OnShowAll, Event
+    end
+    Widget_Info(wWidget, FIND_BY_UNAME='WID_BUTTON_7'): begin
+      if( Tag_Names(Event, /STRUCTURE_NAME) eq 'WIDGET_BUTTON' )then $
+        OnShowUnsharp, Event
+    end
+    Widget_Info(wWidget, FIND_BY_UNAME='WID_BUTTON_8'): begin
+      if( Tag_Names(Event, /STRUCTURE_NAME) eq 'WIDGET_BUTTON' )then $
+        OnShowOverlay, Event
+    end
+    Widget_Info(wWidget, FIND_BY_UNAME='WID_BUTTON_21'): begin
+      if( Tag_Names(Event, /STRUCTURE_NAME) eq 'WIDGET_BUTTON' )then $
+        SelectMultipleFiles, Event
+    end
+    Widget_Info(wWidget, FIND_BY_UNAME='WID_BUTTON_20'): begin
+      if( Tag_Names(Event, /STRUCTURE_NAME) eq 'WIDGET_BUTTON' )then $
+        OnShowPreview, Event
+    end
+    Widget_Info(wWidget, FIND_BY_UNAME='WID_BUTTON_22'): begin
+      if( Tag_Names(Event, /STRUCTURE_NAME) eq 'WIDGET_BUTTON' )then $
+        OnBack, Event
+    end
+    Widget_Info(wWidget, FIND_BY_UNAME='WID_BUTTON_23'): begin
+      if( Tag_Names(Event, /STRUCTURE_NAME) eq 'WIDGET_BUTTON' )then $
+        OnNext, Event
+    end
+    Widget_Info(wWidget, FIND_BY_UNAME='WID_BUTTON_11'): begin
+      if( Tag_Names(Event, /STRUCTURE_NAME) eq 'WIDGET_BUTTON' )then $
+        OnSetReference, Event
+    end
+    Widget_Info(wWidget, FIND_BY_UNAME='WID_BUTTON_24'): begin
+      if( Tag_Names(Event, /STRUCTURE_NAME) eq 'WIDGET_BUTTON' )then $
+        OnSetScale, Event
+    end
+    Widget_Info(wWidget, FIND_BY_UNAME='WID_BUTTON_12'): begin
+      if( Tag_Names(Event, /STRUCTURE_NAME) eq 'WIDGET_BUTTON' )then $
+        SaveAverage, Event
+    end
+    Widget_Info(wWidget, FIND_BY_UNAME='WID_BUTTON_13'): begin
+      if( Tag_Names(Event, /STRUCTURE_NAME) eq 'WIDGET_BUTTON' )then $
+        SaveHistogram, Event
+    end
+    Widget_Info(wWidget, FIND_BY_UNAME='WID_BUTTON_16'): begin
+      if( Tag_Names(Event, /STRUCTURE_NAME) eq 'WIDGET_BUTTON' )then $
+        RunFullAnalysis, Event
+    end
+    else:
+  endcase
+
+end
+
+pro WID_BASE_0, GROUP_LEADER=wGroup, _EXTRA=_VWBExtra_
+
+  Resolve_Routine, 'BlobAnalysisGUI_eventcb',/COMPILE_FULL_FILE  ; Load event callback routines
+  
+  WID_BASE_0 = Widget_Base( GROUP_LEADER=wGroup, UNAME='WID_BASE_0'  $
+      ,XOFFSET=5 ,YOFFSET=5 ,SCR_XSIZE=1343 ,SCR_YSIZE=887  $
+      ,TITLE='IDL' ,SPACE=3 ,XPAD=3 ,YPAD=3)
+
+  
+  WID_TAB_0 = Widget_Tab(WID_BASE_0, UNAME='WID_TAB_0'  $
+      ,SCR_XSIZE=1325 ,SCR_YSIZE=850)
+
+  
+  WID_BASE_2 = Widget_Base(WID_TAB_0, UNAME='WID_BASE_2'  $
+      ,SCR_XSIZE=1317 ,SCR_YSIZE=824 ,TITLE='Parameters/Preview'  $
+      ,SPACE=3 ,XPAD=3 ,YPAD=3)
+
+  
+  WID_DRAW_0 = Widget_Draw(WID_BASE_2, UNAME='WID_DRAW_0' ,FRAME=1  $
+      ,XOFFSET=509 ,YOFFSET=2 ,SCR_XSIZE=803 ,SCR_YSIZE=800 ,/SCROLL  $
+      ,XSIZE=1000 ,YSIZE=1000)
+
+  
+  WID_LABEL_1 = Widget_Label(WID_BASE_2, UNAME='WID_LABEL_1' ,FRAME=1  $
+      ,XOFFSET=6 ,YOFFSET=1 ,SCR_XSIZE=498 ,SCR_YSIZE=30  $
+      ,/ALIGN_CENTER ,VALUE='Use this frame to preview data for'+ $
+      ' analysis.  Load a desired file and adjust parameters until Blo'+ $
+      'b Analysis is working correctly, then proceed to full analysis '+ $
+      'run.')
+
+  
+  WID_LABEL_2 = Widget_Label(WID_BASE_2, UNAME='WID_LABEL_2'  $
+      ,XOFFSET=8 ,YOFFSET=169 ,SCR_XSIZE=114 ,SCR_YSIZE=15  $
+      ,/ALIGN_LEFT ,VALUE='Unsharp Mask Radius:')
+
+  
+  WID_LABEL_3 = Widget_Label(WID_BASE_2, UNAME='WID_LABEL_3'  $
+      ,XOFFSET=8 ,YOFFSET=201 ,SCR_XSIZE=124 ,SCR_YSIZE=15  $
+      ,/ALIGN_LEFT ,VALUE='Threshold Value (0-255):')
+
+  
+  WID_BUTTON_1 = Widget_Button(WID_BASE_2, UNAME='WID_BUTTON_1'  $
+      ,FRAME=1 ,XOFFSET=399 ,YOFFSET=136 ,SCR_XSIZE=93 ,SCR_YSIZE=27  $
+      ,/ALIGN_CENTER ,VALUE='Show Original')
+
+  
+  WID_BUTTON_2 = Widget_Button(WID_BASE_2, UNAME='WID_BUTTON_2'  $
+      ,FRAME=1 ,XOFFSET=399 ,YOFFSET=206 ,SCR_XSIZE=93 ,SCR_YSIZE=27  $
+      ,/ALIGN_CENTER ,VALUE='Show OpenImage')
+
+  
+  WID_BUTTON_3 = Widget_Button(WID_BASE_2, UNAME='WID_BUTTON_3'  $
+      ,FRAME=1 ,XOFFSET=399 ,YOFFSET=241 ,SCR_XSIZE=93 ,SCR_YSIZE=27  $
+      ,/ALIGN_CENTER ,VALUE='Show Blobs')
+
+  
+  WID_TEXT_2 = Widget_Text(WID_BASE_2, UNAME='WID_TEXT_2'  $
+      ,XOFFSET=134 ,YOFFSET=196 ,SCR_XSIZE=50 ,SCR_YSIZE=20  $
+      ,/EDITABLE ,VALUE=[ '150' ] ,XSIZE=20 ,YSIZE=1)
+
+  
+  WID_LABEL_4 = Widget_Label(WID_BASE_2, UNAME='WID_LABEL_4'  $
+      ,XOFFSET=8 ,YOFFSET=227 ,SCR_XSIZE=115 ,SCR_YSIZE=15  $
+      ,/ALIGN_LEFT ,VALUE='Smoothing Kernel Size:')
+
+  
+  WID_BUTTON_5 = Widget_Button(WID_BASE_2, UNAME='WID_BUTTON_5'  $
+      ,FRAME=1 ,XOFFSET=7 ,YOFFSET=300 ,SCR_XSIZE=369 ,SCR_YSIZE=35  $
+      ,/ALIGN_CENTER ,VALUE='ANALYZE! (Results Shown Below)')
+
+  
+  WID_BUTTON_6 = Widget_Button(WID_BASE_2, UNAME='WID_BUTTON_6'  $
+      ,FRAME=1 ,XOFFSET=399 ,YOFFSET=311 ,SCR_XSIZE=93 ,SCR_YSIZE=27  $
+      ,/ALIGN_CENTER ,VALUE='Show All')
+
+  
+  WID_BUTTON_7 = Widget_Button(WID_BASE_2, UNAME='WID_BUTTON_7'  $
+      ,FRAME=1 ,XOFFSET=399 ,YOFFSET=171 ,SCR_XSIZE=93 ,SCR_YSIZE=27  $
+      ,/ALIGN_CENTER ,VALUE='Show Unsharp')
+
+  
+  WID_BUTTON_8 = Widget_Button(WID_BASE_2, UNAME='WID_BUTTON_8'  $
+      ,FRAME=1 ,XOFFSET=399 ,YOFFSET=276 ,SCR_XSIZE=93 ,SCR_YSIZE=27  $
+      ,/ALIGN_CENTER ,VALUE='Show Overlay')
+
+  
+  WID_BASE_5 = Widget_Base(WID_BASE_2, UNAME='WID_BASE_5' ,XOFFSET=6  $
+      ,YOFFSET=132 ,SCR_XSIZE=141 ,SCR_YSIZE=27 ,TITLE='IDL'  $
+      ,COLUMN=1 ,/NONEXCLUSIVE)
+
+  
+  WID_BUTTON_10 = Widget_Button(WID_BASE_5, UNAME='WID_BUTTON_10'  $
+      ,SCR_XSIZE=139 ,SCR_YSIZE=24 ,/ALIGN_LEFT ,TOOLTIP='Reverses'+ $
+      ' wedge factor to make sure holes are low' ,VALUE='Reverse'+ $
+      ' Wedge Factor')
+
+  
+  WID_BUTTON_18 = Widget_Button(WID_BASE_5, UNAME='WID_BUTTON_18'  $
+      ,/ALIGN_LEFT ,TOOLTIP='Reverses wedge factor to make sure holes'+ $
+      ' are low' ,VALUE='Reverse Wedge Factor')
+
+  
+  WID_LABEL_5 = Widget_Label(WID_BASE_2, UNAME='WID_LABEL_5'  $
+      ,XOFFSET=186 ,YOFFSET=270 ,SCR_XSIZE=27 ,SCR_YSIZE=18  $
+      ,/ALIGN_LEFT ,VALUE='Min:')
+
+  
+  WID_LABEL_6 = Widget_Label(WID_BASE_2, UNAME='WID_LABEL_6'  $
+      ,XOFFSET=8 ,YOFFSET=265 ,SCR_XSIZE=95 ,SCR_YSIZE=18  $
+      ,/ALIGN_LEFT ,VALUE='# of Measurements:')
+
+  
+  WID_LABEL_7 = Widget_Label(WID_BASE_2, UNAME='WID_LABEL_7'  $
+      ,XOFFSET=207 ,YOFFSET=242 ,SCR_XSIZE=95 ,SCR_YSIZE=18  $
+      ,/ALIGN_LEFT ,VALUE='Global Max Value:')
+
+  
+  WID_LABEL_8 = Widget_Label(WID_BASE_2, UNAME='WID_LABEL_8'  $
+      ,XOFFSET=266 ,YOFFSET=269 ,SCR_XSIZE=31 ,SCR_YSIZE=18  $
+      ,/ALIGN_LEFT ,VALUE='Max:')
+
+  
+  WID_TEXT_4 = Widget_Text(WID_BASE_2, UNAME='WID_TEXT_4'  $
+      ,XOFFSET=213 ,YOFFSET=268 ,SCR_XSIZE=46 ,SCR_YSIZE=19 ,XSIZE=20  $
+      ,YSIZE=1)
+
+  
+  WID_TEXT_6 = Widget_Text(WID_BASE_2, UNAME='WID_TEXT_6'  $
+      ,XOFFSET=108 ,YOFFSET=263 ,SCR_XSIZE=46 ,SCR_YSIZE=19 ,XSIZE=20  $
+      ,YSIZE=1)
+
+  
+  WID_TEXT_7 = Widget_Text(WID_BASE_2, UNAME='WID_TEXT_7'  $
+      ,XOFFSET=297 ,YOFFSET=268 ,SCR_XSIZE=46 ,SCR_YSIZE=19 ,XSIZE=20  $
+      ,YSIZE=1)
+
+  
+  WID_TEXT_8 = Widget_Text(WID_BASE_2, UNAME='WID_TEXT_8'  $
+      ,XOFFSET=297 ,YOFFSET=240 ,SCR_XSIZE=46 ,SCR_YSIZE=19 ,XSIZE=20  $
+      ,YSIZE=1)
+
+  
+  WID_TEXT_1 = Widget_Text(WID_BASE_2, UNAME='WID_TEXT_1'  $
+      ,XOFFSET=134 ,YOFFSET=165 ,SCR_XSIZE=50 ,SCR_YSIZE=20  $
+      ,/EDITABLE ,VALUE=[ '10' ] ,XSIZE=20 ,YSIZE=1)
+
+  
+  WID_TEXT_3 = Widget_Text(WID_BASE_2, UNAME='WID_TEXT_3'  $
+      ,XOFFSET=134 ,YOFFSET=225 ,SCR_XSIZE=50 ,SCR_YSIZE=20  $
+      ,/EDITABLE ,VALUE=[ '3' ] ,XSIZE=20 ,YSIZE=1)
+
+  
+  WID_BASE_6 = Widget_Base(WID_BASE_2, UNAME='WID_BASE_6'  $
+      ,XOFFSET=162 ,YOFFSET=132 ,TITLE='IDL' ,COLUMN=1  $
+      ,/NONEXCLUSIVE)
+
+  
+  WID_BUTTON_19 = Widget_Button(WID_BASE_6, UNAME='WID_BUTTON_19'  $
+      ,/ALIGN_LEFT ,VALUE='Subtract Reference Mode')
+
+  
+  WID_BUTTON_21 = Widget_Button(WID_BASE_2, UNAME='WID_BUTTON_21'  $
+      ,FRAME=1 ,XOFFSET=5 ,YOFFSET=34 ,SCR_XSIZE=128 ,SCR_YSIZE=38  $
+      ,/ALIGN_CENTER ,VALUE='Select Files')
+
+  
+  WID_BUTTON_20 = Widget_Button(WID_BASE_2, UNAME='WID_BUTTON_20'  $
+      ,FRAME=1 ,XOFFSET=145 ,YOFFSET=37 ,SCR_XSIZE=72 ,SCR_YSIZE=34  $
+      ,/ALIGN_CENTER ,VALUE='Show Current')
+
+  
+  WID_BUTTON_22 = Widget_Button(WID_BASE_2, UNAME='WID_BUTTON_22'  $
+      ,FRAME=1 ,XOFFSET=235 ,YOFFSET=37 ,SCR_XSIZE=72 ,SCR_YSIZE=34  $
+      ,/ALIGN_CENTER ,VALUE='Back')
+
+  
+  WID_BUTTON_23 = Widget_Button(WID_BASE_2, UNAME='WID_BUTTON_23'  $
+      ,FRAME=1 ,XOFFSET=311 ,YOFFSET=37 ,SCR_XSIZE=72 ,SCR_YSIZE=34  $
+      ,/ALIGN_CENTER ,VALUE='Next')
+
+  
+  WID_TEXT_0 = Widget_Text(WID_BASE_2, UNAME='WID_TEXT_0' ,XOFFSET=87  $
+      ,YOFFSET=80 ,SCR_XSIZE=417 ,SCR_YSIZE=19 ,XSIZE=20 ,YSIZE=1)
+
+  
+  WID_TEXT_24 = Widget_Text(WID_BASE_2, UNAME='WID_TEXT_24'  $
+      ,XOFFSET=439 ,YOFFSET=42 ,SCR_XSIZE=63 ,SCR_YSIZE=24 ,/EDITABLE  $
+      ,VALUE=[ '1' ] ,XSIZE=20 ,YSIZE=1)
+
+  
+  WID_LABEL_32 = Widget_Label(WID_BASE_2, UNAME='WID_LABEL_32'  $
+      ,XOFFSET=386 ,YOFFSET=46 ,SCR_XSIZE=53 ,SCR_YSIZE=18  $
+      ,/ALIGN_LEFT ,VALUE='FileNum')
+
+  
+  WID_LABEL_33 = Widget_Label(WID_BASE_2, UNAME='WID_LABEL_33'  $
+      ,XOFFSET=4 ,YOFFSET=80 ,SCR_XSIZE=86 ,SCR_YSIZE=18 ,/ALIGN_LEFT  $
+      ,VALUE='CurrentFileName')
+
+  
+  WID_TEXT_25 = Widget_Text(WID_BASE_2, UNAME='WID_TEXT_25'  $
+      ,XOFFSET=87 ,YOFFSET=109 ,SCR_XSIZE=417 ,SCR_YSIZE=19 ,XSIZE=20  $
+      ,YSIZE=1)
+
+  
+  WID_LABEL_34 = Widget_Label(WID_BASE_2, UNAME='WID_LABEL_34'  $
+      ,YOFFSET=110 ,SCR_XSIZE=86 ,SCR_YSIZE=18 ,/ALIGN_LEFT  $
+      ,VALUE='ReferenceFileName')
+
+  
+  WID_BUTTON_11 = Widget_Button(WID_BASE_2, UNAME='WID_BUTTON_11'  $
+      ,FRAME=1 ,XOFFSET=202 ,YOFFSET=166 ,SCR_XSIZE=147 ,SCR_YSIZE=31  $
+      ,/ALIGN_CENTER ,VALUE='Set Current # as Reference')
+
+  
+  WID_BUTTON_24 = Widget_Button(WID_BASE_2, UNAME='WID_BUTTON_24'  $
+      ,FRAME=1 ,XOFFSET=202 ,YOFFSET=206 ,SCR_XSIZE=147 ,SCR_YSIZE=31  $
+      ,/ALIGN_CENTER ,VALUE='Set Scale with Last Meas')
+
+  
+  WID_DRAW_1 = Widget_Draw(WID_BASE_2, UNAME='WID_DRAW_1' ,XOFFSET=7  $
+      ,YOFFSET=403 ,SCR_XSIZE=480 ,SCR_YSIZE=177)
+
+  
+  WID_TEXT_12 = Widget_Text(WID_BASE_2, UNAME='WID_TEXT_12'  $
+      ,XOFFSET=334 ,YOFFSET=375 ,SCR_XSIZE=40 ,SCR_YSIZE=20  $
+      ,/EDITABLE ,VALUE=[ '6' ] ,XSIZE=20 ,YSIZE=1)
+
+  
+  WID_TEXT_11 = Widget_Text(WID_BASE_2, UNAME='WID_TEXT_11'  $
+      ,XOFFSET=203 ,YOFFSET=375 ,SCR_XSIZE=40 ,SCR_YSIZE=20  $
+      ,/EDITABLE ,VALUE=[ '320' ] ,XSIZE=20 ,YSIZE=1)
+
+  
+  WID_TEXT_5 = Widget_Text(WID_BASE_2, UNAME='WID_TEXT_5' ,XOFFSET=80  $
+      ,YOFFSET=375 ,SCR_XSIZE=40 ,SCR_YSIZE=20 ,/EDITABLE ,VALUE=[  $
+      '25' ] ,XSIZE=20 ,YSIZE=1)
+
+  
+  WID_LABEL_15 = Widget_Label(WID_BASE_2, UNAME='WID_LABEL_15'  $
+      ,FRAME=1 ,XOFFSET=106 ,YOFFSET=351 ,SCR_XSIZE=233 ,SCR_YSIZE=18  $
+      ,/ALIGN_CENTER ,VALUE='Histogram and Adjustable Parameters')
+
+  
+  WID_LABEL_14 = Widget_Label(WID_BASE_2, UNAME='WID_LABEL_14'  $
+      ,XOFFSET=280 ,YOFFSET=377 ,SCR_XSIZE=50 ,SCR_YSIZE=18  $
+      ,/ALIGN_LEFT ,VALUE='Num Bins')
+
+  
+  WID_LABEL_13 = Widget_Label(WID_BASE_2, UNAME='WID_LABEL_13'  $
+      ,XOFFSET=133 ,YOFFSET=377 ,SCR_XSIZE=70 ,SCR_YSIZE=18  $
+      ,/ALIGN_LEFT ,VALUE='Max Bin Size:')
+
+  
+  WID_LABEL_12 = Widget_Label(WID_BASE_2, UNAME='WID_LABEL_12'  $
+      ,XOFFSET=13 ,YOFFSET=377 ,SCR_XSIZE=66 ,SCR_YSIZE=18  $
+      ,/ALIGN_LEFT ,VALUE='Min Bin Size:')
+
+  
+  WID_TEXT_16 = Widget_Text(WID_BASE_2, UNAME='WID_TEXT_16'  $
+      ,XOFFSET=106 ,YOFFSET=725 ,SCR_XSIZE=76 ,SCR_YSIZE=19 ,XSIZE=20  $
+      ,YSIZE=1)
+
+  
+  WID_LABEL_19 = Widget_Label(WID_BASE_2, UNAME='WID_LABEL_19'  $
+      ,XOFFSET=8 ,YOFFSET=728 ,SCR_XSIZE=98 ,SCR_YSIZE=18  $
+      ,/ALIGN_LEFT ,VALUE='Average Blob Area:')
+
+  
+  WID_TEXT_15 = Widget_Text(WID_BASE_2, UNAME='WID_TEXT_15'  $
+      ,XOFFSET=193 ,YOFFSET=703 ,SCR_XSIZE=76 ,SCR_YSIZE=19 ,XSIZE=20  $
+      ,YSIZE=1)
+
+  
+  WID_TEXT_14 = Widget_Text(WID_BASE_2, UNAME='WID_TEXT_14'  $
+      ,XOFFSET=187 ,YOFFSET=678 ,SCR_XSIZE=76 ,SCR_YSIZE=19 ,XSIZE=20  $
+      ,YSIZE=1)
+
+  
+  WID_LABEL_18 = Widget_Label(WID_BASE_2, UNAME='WID_LABEL_18'  $
+      ,XOFFSET=8 ,YOFFSET=680 ,SCR_XSIZE=179 ,SCR_YSIZE=18  $
+      ,/ALIGN_LEFT ,VALUE='Average distance between all blobs:')
+
+  
+  WID_LABEL_17 = Widget_Label(WID_BASE_2, UNAME='WID_LABEL_17'  $
+      ,XOFFSET=8 ,YOFFSET=705 ,SCR_XSIZE=189 ,SCR_YSIZE=18  $
+      ,/ALIGN_LEFT ,VALUE='Average distance to nearest neighbor:')
+
+  
+  WID_LABEL_16 = Widget_Label(WID_BASE_2, UNAME='WID_LABEL_16'  $
+      ,FRAME=1 ,XOFFSET=12 ,YOFFSET=625 ,SCR_XSIZE=233 ,SCR_YSIZE=18  $
+      ,/ALIGN_CENTER ,VALUE='Analysis Results')
+
+  
+  WID_LABEL_36 = Widget_Label(WID_BASE_2, UNAME='WID_LABEL_36'  $
+      ,XOFFSET=6 ,YOFFSET=656 ,SCR_XSIZE=41 ,SCR_YSIZE=18  $
+      ,/ALIGN_LEFT ,VALUE='Count:')
+
+  
+  WID_TEXT_27 = Widget_Text(WID_BASE_2, UNAME='WID_TEXT_27'  $
+      ,XOFFSET=41 ,YOFFSET=653 ,SCR_XSIZE=76 ,SCR_YSIZE=19 ,XSIZE=20  $
+      ,YSIZE=1)
+
+  
+  WID_BASE_4 = Widget_Base(WID_TAB_0, UNAME='WID_BASE_4'  $
+      ,SCR_XSIZE=1317 ,SCR_YSIZE=824 ,TITLE='Multiple File'+ $
+      ' Processing' ,SPACE=3 ,XPAD=3 ,YPAD=3)
+
+  
+  WID_LABEL_20 = Widget_Label(WID_BASE_4, UNAME='WID_LABEL_20'  $
+      ,FRAME=1 ,XOFFSET=8 ,YOFFSET=9 ,SCR_XSIZE=215 ,SCR_YSIZE=18  $
+      ,/ALIGN_LEFT ,VALUE='Set parameters for analysis on previous'+ $
+      ' tabs')
+
+  
+  WID_DRAW_2 = Widget_Draw(WID_BASE_4, UNAME='WID_DRAW_2' ,FRAME=1  $
+      ,XOFFSET=539 ,YOFFSET=21 ,SCR_XSIZE=770 ,SCR_YSIZE=250)
+
+  
+  WID_DRAW_3 = Widget_Draw(WID_BASE_4, UNAME='WID_DRAW_3' ,FRAME=1  $
+      ,XOFFSET=537 ,YOFFSET=295 ,SCR_XSIZE=770 ,SCR_YSIZE=250)
+
+  
+  WID_DRAW_4 = Widget_Draw(WID_BASE_4, UNAME='WID_DRAW_4' ,FRAME=1  $
+      ,XOFFSET=535 ,YOFFSET=567 ,SCR_XSIZE=770 ,SCR_YSIZE=250)
+
+  
+  WID_LABEL_21 = Widget_Label(WID_BASE_4, UNAME='WID_LABEL_21'  $
+      ,XOFFSET=10 ,YOFFSET=44 ,SCR_XSIZE=56 ,SCR_YSIZE=16  $
+      ,/ALIGN_LEFT ,VALUE='Increment:')
+
+  
+  WID_TEXT_17 = Widget_Text(WID_BASE_4, UNAME='WID_TEXT_17'  $
+      ,XOFFSET=68 ,YOFFSET=41 ,SCR_XSIZE=35 ,SCR_YSIZE=18 ,/EDITABLE  $
+      ,VALUE=[ '1' ] ,XSIZE=20 ,YSIZE=1)
+
+  
+  WID_LABEL_22 = Widget_Label(WID_BASE_4, UNAME='WID_LABEL_22'  $
+      ,FRAME=1 ,XOFFSET=539 ,SCR_XSIZE=73 ,SCR_YSIZE=18 ,/ALIGN_LEFT  $
+      ,VALUE='Average Area')
+
+  
+  WID_LABEL_23 = Widget_Label(WID_BASE_4, UNAME='WID_LABEL_23'  $
+      ,FRAME=1 ,XOFFSET=538 ,YOFFSET=275 ,SCR_XSIZE=86 ,SCR_YSIZE=18  $
+      ,/ALIGN_LEFT ,VALUE='Avg. Separation')
+
+  
+  WID_LABEL_24 = Widget_Label(WID_BASE_4, UNAME='WID_LABEL_24'  $
+      ,FRAME=1 ,XOFFSET=535 ,YOFFSET=548 ,SCR_XSIZE=86 ,SCR_YSIZE=18  $
+      ,/ALIGN_LEFT ,VALUE='Avg Min Distance')
+
+  
+  WID_BUTTON_12 = Widget_Button(WID_BASE_4, UNAME='WID_BUTTON_12'  $
+      ,FRAME=1 ,XOFFSET=10 ,YOFFSET=138 ,SCR_XSIZE=128 ,SCR_YSIZE=38  $
+      ,/ALIGN_CENTER ,VALUE='Save Averages')
+
+  
+  WID_BUTTON_13 = Widget_Button(WID_BASE_4, UNAME='WID_BUTTON_13'  $
+      ,FRAME=1 ,XOFFSET=10 ,YOFFSET=185 ,SCR_XSIZE=128 ,SCR_YSIZE=38  $
+      ,/ALIGN_CENTER ,VALUE='Save Histogram')
+
+  
+  WID_BUTTON_16 = Widget_Button(WID_BASE_4, UNAME='WID_BUTTON_16'  $
+      ,FRAME=1 ,XOFFSET=11 ,YOFFSET=80 ,SCR_XSIZE=128 ,SCR_YSIZE=38  $
+      ,/ALIGN_CENTER ,VALUE='Analyze')
+
+  
+  WID_DRAW_7 = Widget_Draw(WID_BASE_4, UNAME='WID_DRAW_7' ,XOFFSET=6  $
+      ,YOFFSET=243 ,SCR_XSIZE=501 ,SCR_YSIZE=132)
+
+  
+  WID_LABEL_37 = Widget_Label(WID_BASE_4, UNAME='WID_LABEL_37'  $
+      ,FRAME=1 ,XOFFSET=219 ,YOFFSET=224 ,SCR_XSIZE=39 ,SCR_YSIZE=18  $
+      ,/ALIGN_CENTER ,VALUE='Count')
+
+  
+  WID_LABEL_38 = Widget_Label(WID_BASE_4, UNAME='WID_LABEL_38'  $
+      ,XOFFSET=238 ,YOFFSET=92 ,SCR_XSIZE=57 ,SCR_YSIZE=18  $
+      ,/ALIGN_CENTER ,VALUE='Processing')
+
+  
+  WID_TEXT_9 = Widget_Text(WID_BASE_4, UNAME='WID_TEXT_9'  $
+      ,XOFFSET=299 ,YOFFSET=90 ,SCR_XSIZE=46 ,SCR_YSIZE=23 ,XSIZE=20  $
+      ,YSIZE=1)
+
+  
+  WID_LABEL_39 = Widget_Label(WID_BASE_4, UNAME='WID_LABEL_39'  $
+      ,XOFFSET=343 ,YOFFSET=94 ,SCR_XSIZE=20 ,SCR_YSIZE=18  $
+      ,/ALIGN_CENTER ,VALUE='of')
+
+  
+  WID_TEXT_10 = Widget_Text(WID_BASE_4, UNAME='WID_TEXT_10'  $
+      ,XOFFSET=364 ,YOFFSET=90 ,SCR_XSIZE=46 ,SCR_YSIZE=23 ,XSIZE=20  $
+      ,YSIZE=1)
+
+  
+  WID_BUTTON_0 = Widget_Button(WID_BASE_4, UNAME='WID_BUTTON_0'  $
+      ,XOFFSET=58 ,YOFFSET=411 ,/ALIGN_CENTER ,VALUE='Button')
+
+  Widget_Control, /REALIZE, WID_BASE_0
+
+  XManager, 'WID_BASE_0', WID_BASE_0, /NO_BLOCK  
+
+end
+; 
+; Empty stub procedure used for autoloading.
+; 
+pro BlobAnalysisGUI, GROUP_LEADER=wGroup, _EXTRA=_VWBExtra_
+  WID_BASE_0, GROUP_LEADER=wGroup, _EXTRA=_VWBExtra_
+end

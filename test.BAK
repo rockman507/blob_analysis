@@ -1,0 +1,8 @@
+Print, 'test'
+
+CD, 'D:\vistakon\JasonTest3\text\'
+filename = DIALOG_PICKFILE(/MULTIPLE_FILES, TITLE='Select Multiple Files For Analysis', filter='*.txt')
+data = readtext(filename)
+Print, data
+
+end

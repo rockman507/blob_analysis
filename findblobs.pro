@@ -1,0 +1,219 @@
+pro FindBlobs
+
+;------------------------------------------------
+; FindBlobs.pro
+; Written by Brian Primeau
+; Feb 15 2011
+; This program imports surface data from text files and uses dfanning's blob analysis routines to identify
+; and provide some statistics on blobs in the measurement.
+;
+; The user should select text files for analysis.  Use 4Sight or other similar program to export surface data
+; into appropriate .txt format.  This uses the readtext() routine to import the text files, rather than the
+; import_ascii function.
+;
+;-------------------------------------------
+
+FileList = DIALOG_PICKFILE(/MULTIPLE_FILES, TITLE='Select Multiple Files For Analysis')
+NumFiles = N_ELEMENTS(FileList)
+
+;Set Increment. i.e. 1 means we analyze every file in selction.  10 analyzes every 10th file, etc.
+;Allows the user to easily select an entire folder while not necessarily analyzing all of them
+Increment = 1
+NumAnalyzed = NumFiles/Increment
+
+;Set Up Histogram Parameters for later use
+MinBin = 20
+MaxBin = 320
+NumBins = 6  ;Statistically, should be the square root of the number of blobs.  5-10 is fairly typical
+
+; Set up blank arrays for storing data within the loop
+Hist = MAKE_ARRAY(NumBins,NumAnalyzed+1)
+AverageArea = MAKE_ARRAY(NumAnalyzed+1)
+AverageDistance = MAKE_ARRAY(NumAnalyzed+1)
+AverageMinDistance = MAKE_ARRAY(NumAnalyzed+1)
+
+; Initialize count.  Use k, rather than loop variables due to incrimenting.  "i" will go up by increment,
+; and there are only "k" elements in each vector
+k = 0
+
+; First FOR loop runs included analysis on each measurement set selected, taking increment into consideration
+FOR i=0,NumFiles-1, Increment DO BEGIN
+
+	;--------------------------------------------------------------------------------------------------
+	; This portion of the code imports the file and does appropriate filtering to create bi-level image
+	; to be passed to blob analysis.  User can modify bytscl valuesif needed, along with unsharp_mask
+	; kernel size.  Can also modify radius for structuring kernel, along with mask threshold.
+	;--------------------------------------------------------------------------------------------------
+	data = readtext(FileList(i))
+	index = where(data eq data(0))  ; Removes data outside of 4Sight Mask.  Assumes pixel (0,0) is masked out
+	mask = data*0+1d
+	mask(index) = 0
+	data = data*mask
+	;data = congrid(data,400,400)
+	;image = bytscl(data, max = 10, min = 0)
+	image = data
+	image = UNSHARP_MASK(image, RADIUS = 10) - image
+	image = bytscl(image)
+	; Define a structuring kernal for an opening operation on the image.
+	radius = 2
+	kernel = SHIFT(DIST(2*radius+1), radius, radius) LE radius
+	; Apply the opening operator to the image.
+	openImage = MORPH_OPEN(image, kernel, /GRAY)
+	;openImage = MORPH_OPEN(image, kernel, /WHITE);changed by WC 10/12/12
+
+	; Threshold the image to prepare to remove background noise.
+	; Notice that changing this value can produce more or less
+	; artifacts. You will have to decide what you can live with
+	; in your analysis. It requires some judgement on your part.
+	mask = openImage GE 120
+
+	; Call the blob analysis
+	blobs = Obj_New('blob_analyzer', openImage, MASK=mask, SCALE=[1, 1])
+
+	; Determine number of Blobs identified
+	count = blobs -> NumberOfBlobs()
+
+	;---------------------------------------------------------------------------------------------------
+	; The following section analyzes some of the blob data.  It creates DataArray, which includes
+	; the X,Y coordinates and pixel area for each blob identified.  This can be exported to a text file
+	; for later analysis.  Also creates an array of the average blob area for each measurement.
+	;---------------------------------------------------------------------------------------------------
+
+	DataArray = MAKE_ARRAY(4,count) ; #of stats wide, #of blobs tall
+	; Set Columns, allows user to reorder or add columns without changing indices everywhere in program
+	IndexCol = 0
+	CenterXCol = 1
+	CenterYCol = 2
+	AreaCol = 3
+
+	; This FOR loop pulls info about each blob within a given data set.  Needs to run on each new measurement file
+	j = 0
+	FOR j=0, count - 1 DO BEGIN
+		stats = blobs -> GetStats(j, /NoScale)
+		DataArray(IndexCol,j) = j
+		DataArray(CenterXCol,j) = stats.CENTER[0]
+		DataArray(CenterYCol,j) = stats.CENTER[1]
+		DataArray(AreaCol,j) = stats.PIXEL_AREA
+	ENDFOR
+
+	AverageArea(k) = MEAN(DataArray(AreaCol,*))
+
+	;---------------------------------------------------------------------------------------------------
+	; Create a histogram of blob area distributions in each measurement.  The bin characteristics are
+	; set before this loop begins.  The number of bins should be roughly equal to the root of the number of
+	; blobs.  It is convenient to use the same bin characteristics for each measurement set in order to graphically
+	; compare them at a later time, so the number of bins is currently set based on typical values I've found.
+	;---------------------------------------------------------------------------------------------------
+	Hist(*,k) = Histogram(DataArray(AreaCol,*), MIN = MinBin, MAX = MaxBin, NBINS = NumBins)
+
+
+	;---------------------------------------------------------------------------------------------------
+	; This portion uses the Distance_Measure function to measure distances between the blob positions
+	; found in the DataArray.  Two are created: a shortform vector along with a symmetric matrix. The vector
+	; version is used to calculate the average distance between all points.  IE, average between blob 1-1, 1-2,
+	; 1-n and so on.  The matrix is used to determine distances to nearest blobs.
+	;---------------------------------------------------------------------------------------------------
+
+	s = SIZE(DataArray)
+
+	; Do some error checking - no blobs causes 1D DataArray and crashes routine
+	IF s(0) EQ 1 THEN BEGIN
+		print, 'No Blobs, Cannot Measure Distances'
+		Distance = 0
+		MinValues = 0
+	ENDIF ELSE BEGIN
+		Distance = DISTANCE_MEASURE(DataArray([CenterXCol,CenterYCol],*))
+		DistanceMatrix = DISTANCE_MEASURE(DataArray([CenterXCol,CenterYCol],*), /MATRIX)
+		ZeroIndex = where(DistanceMatrix eq 0)
+		DistanceMatrix(ZeroIndex) = 99999
+		MatrixSize = SIZE(DistanceMatrix)
+		j = 0
+		MinValues = MAKE_ARRAY(MatrixSize(1))
+		MinPositions = MAKE_ARRAY(MatrixSize(1))
+
+		FOR j=0,MatrixSize(1)-1 DO BEGIN
+			MinValues(j) = MIN(DistanceMatrix(*,j))
+			MinPositions(j) = WHERE(DistanceMatrix(*,j) EQ MIN(DistanceMatrix(*,j)))
+		ENDFOR
+	ENDELSE
+
+	AverageDistance(k) = MEAN(Distance)
+	AverageMinDistance(k) = MEAN(MinValues)
+
+	STOP
+	; Destroy the blobs object before repeating the loop.
+	Obj_Destroy, blobs
+
+	k = k+1
+
+ENDFOR
+
+;---------------------------------------------------------------------------------------------------
+; This section reformats the array for export into a user selected .dat file.
+; First we'll export the averages and then the histograms
+;---------------------------------------------------------------------------------------------------
+
+ExportArray = MAKE_ARRAY(4,NumAnalyzed+1)
+ExportArray(0,*) = INDGEN(NumAnalyzed+1)+1
+ExportArray(1,*) = AverageArea
+ExportArray(2,*) = AverageDistance
+ExportArray(3,*) = AverageMinDistance
+
+header = '      File#        AvgArea      AvgSpacing   AvgMinDistance'
+filename = DIALOG_PICKFILE(DEFAULT_EXTENSION = 'dat', /OVERWRITE_PROMPT, $
+	TITLE = 'Select File to Averages, or Type in New Name')
+
+OPENW, 1, filename, WIDTH = 250
+PRINTF, 1, header
+PRINTF, 1, ExportArray
+CLOSE, 1
+
+
+ExportArray = [(indgen(1,NumAnalyzed+1)+1),hist]
+ExportArray = [[indgen(NumBins+1,1)],[ExportArray]]
+
+header = '       File#       Bin Numbers (Horizontal)'
+filename = DIALOG_PICKFILE(DEFAULT_EXTENSION = 'dat', /OVERWRITE_PROMPT, $
+	TITLE = 'Select File to Histogram, or Type in New Name')
+
+OPENW, 1, filename, WIDTH = 1000
+PRINTF, 1, header
+PRINTF, 1, ExportArray
+CLOSE, 1
+
+
+STOP
+;---------------------------------------------------------------------------------------------------
+; This portion plots the histogram.  Still deciding whether to use iPlot or just the built in plot
+; feature.  Not happy with either yet.  Probably should just create a separate callable function rather
+; than keep this block in here, eventually.
+;---------------------------------------------------------------------------------------------------
+
+; Plot desired histograms.  First setup blank plot, then add desired data.
+ColorList = ['blue', 'green', 'red', 'cyan', 'navy', 'yellow', 'purple', 'aquamarine', 'teal', 'violet', 'dodger blue', 'orange red']
+NullArray = Make_Array(NumBins)
+
+; Plot using iPLOT
+
+iPLOT, NullArray, YRANGE=[0,max(hist+1)],XRANGE = [0,NumBins], TITLE = 'Blob Area Histogram', $
+	YTITLE = 'Blob Frequency', XTITLE = 'Blob Area Bin Number', BACKGROUND_COLOR = fsc_color('Charcoal')
+i=0
+k=0
+FOR i=0, NumFiles-1, Increment DO BEGIN
+	iPLOT, hist(*,k), LINESTYLE = k mod 5, COLOR = fsc_color(ColorList(k mod Size(ColorList,/N_ELEMENTS))), /OVERPLOT
+	k = k+1
+ENDFOR
+
+;plot, NullArray, YRANGE=[0,max(hist+1)],XRANGE = [0,NumBins], TITLE = 'Blob Area Histogram', $
+;	YTITLE = 'Blob Frequency', XTITLE = 'Blob Area Bin Number'
+
+;i=0
+;k=0
+;FOR i=0, NumFiles-1, Increment DO BEGIN
+;	oplot, hist(*,k), LINESTYLE = k mod 5, COLOR = fsc_color(ColorList(k mod Size(ColorList,/N_ELEMENTS)))
+;	k = k+1
+;ENDFOR
+
+STOP
+END
+
